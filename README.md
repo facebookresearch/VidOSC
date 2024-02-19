@@ -23,7 +23,7 @@ arXiv, 2023
 
 
 ### Evaluation
-+ Run [data_scripts/evaluator.py](data_scripts/read_ann.py), remember to replace `predict()` with your model's prediction function. The evaluator is set as 1fps.
++ Run [data_scripts/evaluator.py](data_scripts/evaluator.py), remember to replace `predict()` with your model's prediction function. The evaluator is set as 1fps.
 
 ## VidOSC code
 To be released
