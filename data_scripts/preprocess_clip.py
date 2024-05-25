@@ -25,6 +25,7 @@ def download_and_crop_video(video_id, start_time, duration, save_path):
 
 
 def preprocess_video(csv_file, save_dir):
+    print(f'Processing {csv_file}, saving to {save_dir}')
     df = pd.read_csv(csv_file)
     for index, row in df.iterrows():
         save_path = os.path.join(save_dir, row['osc'])
@@ -34,3 +35,4 @@ def preprocess_video(csv_file, save_dir):
 
 if __name__ == '__main__':
     preprocess_video('./data_files/howtochange_eval.csv', './data/eval_clips')
+    preprocess_video('./data_files/howtochange_unlabeled_train.csv', './data/train_clips')
