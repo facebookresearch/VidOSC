@@ -1,7 +1,7 @@
 # Learning Object State Changes in Videos: An Open-World Perspective 
 [**Learning Object State Changes in Videos: An Open-World Perspective**](https://arxiv.org/abs/2312.11782)                                     
 Zihui Xue, Kumar Ashutosh, Kristen Grauman  
-arXiv, 2023  
+CVPR, 2024  
 [project page](https://vision.cs.utexas.edu/projects/VidOSC/) | [arxiv](https://arxiv.org/abs/2312.11782) | [bibtex](#citation)
 
 ## HowToChange dataset
