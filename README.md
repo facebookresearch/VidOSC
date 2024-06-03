@@ -35,7 +35,51 @@ CVPR, 2024
 + Run [data_scripts/evaluator.py](data_scripts/evaluator.py), remember to replace `predict()` with your model's prediction function. The evaluator is set as 1fps.
 
 ## VidOSC code
-To be released
+
+### Before you start
+1. set up the environment
+```bash
+conda env create --file environment.yml
+conda activate vidosc
+```
+
+2. update data path in [train.py](train.py):   
+`--feat_dir`: path to InternVideo features, we use the precomputed InternVideo-MM-L14 features [here](https://github.com/TengdaHan/TemporalAlignNet/tree/main/htm_zoo)   
+`--pseudolabel_dir`: path to pseudo labels given by clip / videoclip (run [data_scripts/pseudo_label.py](data_scripts/pseudo_label.py) to generate pseudo labels) 
+
+Data Structure:
+```
+feat_dir
+  |- VIDEO_ID.pth.tar
+pseudolabel_dir
+  |- clip_probs
+  |- videoclip_probs
+```
+
+### Training
+```bash
+# Train one model for one state transition
+sc_list=("chopping" "slicing" "frying" "peeling" "blending" "roasting" "browning" "grating" "grilling" "crushing" "melting" "squeezing" "sauteing" "shredding" "whipping" "rolling" "mashing" "mincing" "coating" "zesting") 
+for sc in ${sc_list[@]}; do
+  python train.py --use_videoclip --det 1 --sc_list $sc
+done
+
+# Train one multitask model for all state transitions (see paper Table 7)
+python train.py --use_videoclip --det 1 --sc_list all
+```
+
+`--use_videoclip`: use VideoCLIP as the pseudo labeler.  
+`--det`: 0: InternVideo features, 1: global InternVideo + object-centric Internvideo features as input (paper Section 3.2)    
+`--sc_list`: specify the state transition to train, using `all` trains a multitask model for all state transitions.
+
+### Evaluation
+```bash
+python train.py --use_videoclip --det 1 --sc_list $SC_NAME --ckpt $CKPT_PATH
+```
+
+`--ckpt`: path to the model checkpoint.   
+`--sc_list`: specify the state transition to evaluate.
+
 
 ## License
 VidOSC is licensed under the [CC-BY-NC license](LICENSE).

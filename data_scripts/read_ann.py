@@ -89,8 +89,6 @@ def read_data(ann_file, clip_dir):
         gt_label = derive_label(row, n_frames=len(frames))
         print('ground truth state label (0=bg, 1=ini, 2=tran, 3=end):', gt_label)
 
-        break
-
 
 if __name__ == '__main__':
     read_data('./data_files/howtochange_eval.csv', './data/eval_clips')

@@ -98,7 +98,7 @@ class RunVideoClip:
 def process(file_name, clip_path, save_path):
     print(f'Processing {file_name} with clip path = {clip_path}, save path = {save_path}')
     df = pd.read_csv(file_name)
-    model = RunVideoClip() # RunClip or RunVideoClip
+    model = RunVideoClip()  # RunClip or RunVideoClip
     for index, row in df.iterrows():
         video_name = os.path.join(clip_path, row['osc'], f"{row['video_id']}_st{row['start_time']}_dur{row['duration']}.mp4")
         pl_name = os.path.join(save_path, row['osc'], f"{row['video_id']}_st{row['start_time']}_dur{row['duration']}.npy")
@@ -119,4 +119,4 @@ def process(file_name, clip_path, save_path):
 
 
 if __name__ == '__main__':
-    process('./data_files/howtochange_unlabeled_train.csv', './data/train_clips', './data/train_pseudo_labels')
+    process('./data_files/howtochange_unlabeled_train.csv', './data/train_clips', './data/train_pseudo_labels/videoclip_probs')
