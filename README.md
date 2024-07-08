@@ -49,7 +49,7 @@ conda activate vidosc
 
 2. update data path in [train.py](train.py):   
 
-🆕❗️[Update July 2024]: We provide InternVideo (+object-centric) features [here](). Download them and put the two folders under `./data`. `feats_handobj` currently lacks some training files, but is complete for evaluation purposes.
+🆕❗️[Update July 2024]: We provide InternVideo (+object-centric) features [here](https://drive.google.com/drive/folders/1tChqwGmfmBWUq0KGFaru2wPB_4Q2hiYP?usp=share_link). Download them and put the two folders under `./data`. `feats_handobj` currently lacks some training files, but is complete for evaluation purposes.
 
 🆕❗️[Update July 2024]: We provide VideoCLIP pseudo labels [here](https://drive.google.com/file/d/1YQn7KeRduXeMABBLAP43uNqz8RpOTrI1/view?usp=sharing). Download and unzip it to the project folder as `./videoclip_pseudolabel`.
 
@@ -84,7 +84,7 @@ python train.py --det 0 --sc_list all --log_name multitask
 `--sc_list`: specify the state transition to train, using `all` trains a multitask model for all state transitions.
 
 ### Evaluation
-We provide VidOSC checkpoints [here](). Download and put them under `./checkpoints`. 
+We provide VidOSC checkpoints [here](https://drive.google.com/drive/folders/1QmmYvVag_Z-IEXQebgdz-XhZb9D1_rfX?usp=share_link). Download and put them under `./checkpoints`. 
 
 ```bash
 # no object-centric feat, use your trained models 
@@ -107,10 +107,11 @@ VidOSC is licensed under the [CC-BY-NC license](LICENSE).
 ## Citation
 If you find our work inspiring or use our codebase in your research, please consider giving a star ⭐ and a citation.
 ```
-@article{xue2023learning,
-  title={Learning Object State Changes in Videos: An Open-World Perspective},
+@inproceedings{xue2024learning,
+  title={Learning object state changes in videos: An open-world perspective},
   author={Xue, Zihui and Ashutosh, Kumar and Grauman, Kristen},
-  journal={CVPR},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={18493--18503},
   year={2024}
 }
 ``` 
