@@ -18,8 +18,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     # data args
     parser.add_argument("--ann_dir", type=str, default='./data_files')
-    parser.add_argument("--pseudolabel_dir", type=str, default="./data/train_pseudo_labels")
-    parser.add_argument("--feat_dir", type=str, required=True)
+    parser.add_argument("--pseudolabel_dir", type=str, default="./videoclip_pseudolabel")
+    parser.add_argument("--feat_dir", type=str, default='./data')
     parser.add_argument("--sc_list", type=str, nargs='+', default=['peeling'])
     # model args
     parser.add_argument("--transformer_heads", type=int, default=4)
@@ -39,7 +39,6 @@ def parse_args():
 
     parser.add_argument("--use_gt_action", action="store_true")  # multitask use gt state transition idx
     parser.add_argument("--det", default=0, type=int, choices=[0, 1])
-    parser.add_argument("--use_videoclip", action="store_true")
 
     return parser.parse_args()
 

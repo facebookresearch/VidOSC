@@ -36,6 +36,7 @@ class HowToChangeFeatDataset(Dataset):
         self.vocab, _, self.df = build_vocab(args)
         print(f"HowToChange Eval: state transition = {args.sc_list} -> {len(self.df)} videos")
         self.max_seq_len = int(self.df['duration'].max())
+        print(f"Max sequence length: {self.max_seq_len}")
 
     def load_feat(self, row):
         video_id = row['video_id']
@@ -49,9 +50,17 @@ class HowToChangeFeatDataset(Dataset):
 
         if self.args.det > 0:  # + object-centric feature
             obj_features = torch.zeros_like(feat)
-            obj_feat_path = os.path.join(self.feat_dir, 'feats_handobj', row['osc'], video_id + '_obj.pth.tar')
+            file_name = row['video_name'] + '_obj.pth.tar'
+            obj_feat_path = os.path.join(self.feat_dir, 'feats_handobj', row['osc'], file_name)
+            
             if os.path.exists(obj_feat_path):
-                obj_features = torch.load(obj_feat_path)
+                # obj_features = torch.load(obj_feat_path)
+                obj_feat = torch.load(obj_feat_path)
+                obj_idx = np.load(obj_feat_path.replace('.pth.tar', '.npy'))
+                obj_idx = obj_idx[obj_idx < len(obj_features)]
+                obj_features[obj_idx] = obj_feat[0:len(obj_idx)]
+            else:
+                print(f'Warning! {obj_feat_path} do not exist')
             feat = torch.cat((feat, obj_features), dim=-1)
 
         return feat
@@ -74,6 +83,56 @@ class HowToChangeFeatDataset(Dataset):
         return len(self.df)
 
 
+
+class HowToChangeFeatCLIPLabelDataset(HowToChangeFeatDataset):
+    def __init__(self, args):
+        super().__init__(args)
+        self.load_data()
+    
+    def load_data(self):
+        df = pd.read_csv(os.path.join(self.args.ann_dir, 'howtochange_unlabeled_train.csv'))
+        df['verb'] = df['osc'].apply(lambda x: x.split('_')[0])
+        if 'all' not in self.args.sc_list:
+            df = df[df['verb'].isin(self.args.sc_list)]
+        print(f"HowToChange Train: state transition = {self.args.sc_list} -> {len(df)} videos")
+        self.max_seq_len = int(df['duration'].max())
+        self.data_list = []
+        for i, row in df.iterrows():
+            pl_path = os.path.join(self.args.pseudolabel_dir, row['osc'], row['video_name'] + '.npz')
+            if not os.path.exists(pl_path):
+                print(f'Missing pseudo label {pl_path}')
+                continue
+            pl = np.load(pl_path)['arr_0']
+            self.data_list.append({
+                'row': row,
+                'pseudo_label': pl
+            })
+        print(f"{len(self.data_list)} training clips loaded")
+    
+    def pad_sequence(self, feat):
+        t, dim = feat.shape
+        padded_feat = torch.cat((feat, torch.zeros((self.max_seq_len - t, dim))), dim=0)
+        return padded_feat
+
+    def pad_label(self, label):
+        t = label.shape[0]
+        padded_label = torch.cat((label, -torch.ones(self.max_seq_len - t)), dim=0).long()
+        return padded_label
+    
+    def __getitem__(self, index):
+        data_dict = self.data_list[index]
+        feat = self.load_feat(data_dict['row'])
+        pseudo_label = torch.from_numpy(data_dict['pseudo_label'])
+        pseudo_label = pseudo_label[0: feat.shape[0]]
+        feat = self.pad_sequence(feat)
+        pseudo_label = self.pad_label(pseudo_label)
+        return feat, pseudo_label
+
+    def __len__(self):
+        return len(self.data_list)
+
+
+# Deprecated: generate pseudo labels based on clip / video clip similarity score
 # VideoCLIP threshold
 sc_to_threshold_a = {
     'chopping': [6, 0.05],
@@ -124,7 +183,7 @@ sc_to_threshold_b = {
 }
 
 
-class HowToChangeFeatCLIPLabelDataset(HowToChangeFeatDataset):
+class HowToChangeFeatCLIPLabelDatasetDeprecated(HowToChangeFeatDataset):
     def __init__(self, args):
         super().__init__(args)
         self.args = args
