@@ -27,7 +27,7 @@ CVPR, 2024
 
 ### Utils
 + **Clip extraction**: run [data_scripts/preprocess_clip.py](data_scripts/preprocess_clip.py) to extract these clips. Make sure to have [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://ffmpeg.org) installed.  
-❗️ Please note that the VidOSC code utilizes pre-processed features, which can be found [here](#before-you-start). This clip extraction step is optional and intended for those interested in visualizing specific video clips. If you require access to the complete HowToChange videos but are experiencing issues with YouTube downloads, please feel free to [email me](mailto:sherryxue@utexas.edu) for a full copy. 
+❗️ Please note that the VidOSC code utilizes pre-processed features, which can be found [here](#before-you-start). This clip extraction step is optional and intended for those interested in visualizing specific video clips. If you require access to the complete HowToChange videos but are experiencing issues with YouTube downloads, please fill the [form](https://forms.gle/7gmf39H9BKB8Q3vFA) for a full copy. 
 
 + **Pseudo label generation**: Run [data_scripts/pseudo_label.py](data_scripts/pseudo_label.py) to pseudo label training clips with CLIP/VideoCLIP. To use VideoCLIP, make sure to have the [MMPT toolkit](https://github.com/facebookresearch/fairseq/tree/main/examples/MMPT) installed.    
 🆕❗️[Update July 2024]: We provide preprocessed pseudo labels by VideoCLIP [here](https://drive.google.com/file/d/1YQn7KeRduXeMABBLAP43uNqz8RpOTrI1/view?usp=sharing), where -1=ambiguous, 0=background, 1=initial state, 2=transitioning state, 3=end state.
