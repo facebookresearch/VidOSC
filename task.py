@@ -51,7 +51,7 @@ class FrameCls(pl.LightningModule):
             ac_probs = prob[:, 2].unsqueeze(0).unsqueeze(2)
             # print('before', pred_idx)
             s0_idx, s2_idx, s1_idx = lookforthechange.optimal_state_change_indices(st_probs, ac_probs,
-                   lens=torch.tensor([st_probs.shape[1]], dtype=torch.int32, device=st_probs.device))[0].cpu().numpy()
+                lens=torch.tensor([st_probs.shape[1]], dtype=torch.int32, device=st_probs.device))[0].cpu().numpy()
             pred_idx = np.array([s0_idx, s1_idx, s2_idx])
             # print('after', pred_idx)
         else:
@@ -100,7 +100,7 @@ class FrameCls(pl.LightningModule):
         if len(self.sc_list) > 1:
             avg_result = np.zeros((len(self.sc_list), 6))
             value_name = ['avg_f1_known', 'avg_f1_novel', 'avg_prec_known', 'avg_prec_novel', 'avg_prec1_known',
-                          'avg_prec1_novel']
+                        'avg_prec1_novel']
             for i, sc_name in enumerate(self.sc_list):
                 value_list = [self.trainer.callback_metrics.get(f'{sc_name}_{v}').item() for v in value_name]
                 avg_result[i] = value_list

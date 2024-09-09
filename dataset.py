@@ -232,7 +232,7 @@ class HowToChangeFeatCLIPLabelDatasetDeprecated(HowToChangeFeatDataset):
                 'pseudo_label': self.derive_pseudo_label(clip_score, row['osc'], threshold),
             })
         print(f'{len(self.df)} videos loaded, {skip_cnt} does not have clip np file, '
-              f'after filtering: {len(self.data_list)}')
+            f'after filtering: {len(self.data_list)}')
         print(f"Pseudo-labeled State count: {self.state_cnt}, ratio {np.array(self.state_cnt) / self.state_cnt[-1]}")
 
     def enforce_two_set_ordering(self, s0, s1):

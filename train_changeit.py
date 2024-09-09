@@ -11,16 +11,21 @@ import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-from task import FrameCls
+from task_changeit import FrameCls
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     # data args
-    parser.add_argument("--ann_dir", type=str, default='./data_files')
-    parser.add_argument("--pseudolabel_dir", type=str, default="./videoclip_pseudolabel")
-    parser.add_argument("--feat_dir", type=str, default='./data')
-    parser.add_argument("--sc_list", type=str, nargs='+', default=['peeling'])
+    parser.add_argument("--dataset_root", type=str, default="./data_changeit")
+    parser.add_argument("--ignore_video_weight", action="store_true")
+    parser.add_argument("--category", type=str, default=None)
+    parser.add_argument("--novel_obj", action="store_true") # ChangeIt open-world
+    parser.add_argument("--bg_thre", default=0.5, type=float)
+    parser.add_argument("--state_thre1", default=0.35, type=float)
+    parser.add_argument("--state_thre2", default=0.37, type=float)
+    parser.add_argument("--action_thre", default=0.4, type=float)
+    parser.add_argument("--det", default=0, type=int, choices=[0, 1])
     # model args
     parser.add_argument("--transformer_heads", type=int, default=4)
     parser.add_argument("--transformer_layers", type=int, default=3)
@@ -38,13 +43,13 @@ def parse_args():
     parser.add_argument("--ckpt", type=str, default="")
 
     parser.add_argument("--use_gt_action", action="store_true")  # multitask use gt state transition idx
-    parser.add_argument("--det", default=0, type=int, choices=[0, 1])
+    parser.add_argument("--ordering", action="store_true") # use casual ordering during inference
 
     return parser.parse_args()
 
 
 def main():
-    log_dir = os.path.join(args.log_dir, 'howtochange', args.log_name)
+    log_dir = os.path.join(args.log_dir, 'changeit', args.log_name)
     os.makedirs(log_dir, exist_ok=True)
     print('Logging to:', log_dir)
     with open(f'{log_dir}/args.json', 'w') as f:
@@ -58,7 +63,7 @@ def main():
             checkpoint_callbacks.append(
                 ModelCheckpoint(
                     monitor=name,
-                    filename='model-{epoch:02d}-{' + name + ':.4f}',
+                    filename=task.ckpt_save_format,
                     save_top_k=1,
                     mode='max',
                 )
@@ -78,6 +83,8 @@ def main():
         task = task.load_from_checkpoint(checkpoint_path=args.ckpt, args=args)
         print(f'Evaluating {args.ckpt}')
         trainer.validate(task)
+        if args.novel_obj:  # novel split
+            trainer.test(task)
     else:
         trainer.fit(task)
 

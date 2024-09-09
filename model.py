@@ -31,6 +31,34 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
+class FeatTimeTransformerDualHead(nn.Module):  # ChangeIt model
+    def __init__(self, args):
+        super(FeatTimeTransformerDualHead, self).__init__()
+        self.args = args
+        self.state_classes = args.state_classes
+        self.action_classes = args.action_classes
+        self.proj = nn.Linear(args.input_dim, args.transformer_dim)
+        self.ln = nn.LayerNorm(args.transformer_dim)
+        self.pos_encoder = PositionalEncoding(args.transformer_dim)
+        self.transformer_encoder = nn.TransformerEncoder(
+            encoder_layer=nn.TransformerEncoderLayer(d_model=args.transformer_dim,
+                                                    nhead=args.transformer_heads,
+                                                    dropout=args.transformer_dropout,
+                                                    batch_first=True),
+            num_layers=args.transformer_layers)
+
+        self.state_head = nn.Linear(args.transformer_dim, self.state_classes)
+        self.action_head = nn.Linear(args.transformer_dim, self.action_classes)
+
+    def forward(self, input):
+        x = self.ln(self.proj(input))
+        x = self.pos_encoder(x)
+        x = self.transformer_encoder(x)  # (batch_size, seq_len, transformer_dim)
+        x_state = self.state_head(x)
+        x_action = self.action_head(x)
+        return {'state': x_state.view(-1, self.state_classes), 'action': x_action.view(-1, self.action_classes)}
+    
+    
 class FeatTimeTransformer(nn.Module):
     def __init__(self, args):
         super(FeatTimeTransformer, self).__init__()
@@ -41,9 +69,9 @@ class FeatTimeTransformer(nn.Module):
         self.pos_encoder = PositionalEncoding(args.transformer_dim)
         self.transformer_encoder = nn.TransformerEncoder(
             encoder_layer=nn.TransformerEncoderLayer(d_model=args.transformer_dim,
-                                                     nhead=args.transformer_heads,
-                                                     dropout=args.transformer_dropout,
-                                                     batch_first=True),
+                                                nhead=args.transformer_heads,
+                                                dropout=args.transformer_dropout,
+                                                batch_first=True),
             num_layers=args.transformer_layers)
         self.head = nn.Linear(args.transformer_dim, self.classes)
 

@@ -11,13 +11,13 @@ from dataset import HowToChangeFeatDataset, HowToChangeFeatCLIPLabelDataset
 
 
 def construct_loader(args, split, dataset=None):
-    assert split in ['train', 'val']
+    assert split in ['train', 'val', 'test']
     if split == 'train':
-        dataset = HowToChangeFeatCLIPLabelDataset(args)
+        dataset = dataset if dataset is not None else HowToChangeFeatCLIPLabelDataset(args) 
         sampler = DistributedSampler(dataset, shuffle=True, drop_last=True) if args.gpus > 1 else None
         shuffle = False if args.gpus > 1 else True
     else:
-        dataset = HowToChangeFeatDataset(args)
+        dataset = dataset if dataset is not None else HowToChangeFeatDataset(args)
         sampler = DistributedSampler(dataset, shuffle=False, drop_last=False) if args.gpus > 1 else None
         shuffle = False
     batch_size = args.batch_size if split == "train" else 1

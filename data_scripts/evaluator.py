@@ -13,6 +13,42 @@ from torchmetrics.classification import MulticlassPrecision, MulticlassF1Score
 from data_scripts.read_ann import derive_label
 
 
+class ActionMetric(Metric):
+    def __init__(self):
+        super().__init__()
+        self.add_state('prec_1', default=torch.tensor(0.0), dist_reduce_fx="sum")
+        self.add_state("cnt", default=torch.tensor(0), dist_reduce_fx="sum")
+
+    def update(self, action_idx, annotations):
+        # action_idx = torch.argmax(pred_action).item()
+        prec = (annotations[action_idx.item()] == 2)
+        self.prec_1 = self.prec_1.to(action_idx.device)
+        self.prec_1 += prec
+        self.cnt = self.cnt.to(action_idx.device)
+        self.cnt += torch.tensor(1).to(action_idx.device)
+
+    def compute(self):
+        return self.prec_1 / self.cnt
+
+
+class StateMetric(Metric):
+    def __init__(self):
+        super().__init__()
+        self.add_state("prec_1", default=torch.tensor(0.0), dist_reduce_fx="sum")
+        self.add_state("cnt", default=torch.tensor(0), dist_reduce_fx="sum")
+
+    def update(self, state, annotations):
+        prec = (0.5 if annotations[state[0]] == 1 else 0.0) + (0.5 if annotations[state[1]] == 3 else 0.0)
+        self.prec_1 = self.prec_1.to(state.device)
+        self.prec_1 += torch.tensor(prec).to(state.device)
+        self.cnt = self.cnt.to(state.device)
+        self.cnt += torch.tensor(1).to(state.device)
+
+    def compute(self):
+        result = {"prec_1": self.prec_1 / self.cnt}
+        return result
+
+
 class StatePrec1(Metric):
     def __init__(self):
         super().__init__()
@@ -109,8 +145,8 @@ class EvalClip:
         print('*' * 20, 'Final Results', '*' * 20)
         avg_results = np.mean(results, axis=0) * 100
         print(f"Known F1 score: {avg_results[0]:.2f} | Novel F1 score: {avg_results[1]:.2f}\n"
-              f"Known Precision: {avg_results[2]:.2f} | Novel Precision: {avg_results[3]:.2f}\n"
-              f"Known Prec1: {avg_results[4]:.2f} | Novel Prec1: {avg_results[5]:.2f}")
+            f"Known Precision: {avg_results[2]:.2f} | Novel Precision: {avg_results[3]:.2f}\n"
+            f"Known Prec1: {avg_results[4]:.2f} | Novel Prec1: {avg_results[5]:.2f}")
 
 
 if __name__ == '__main__':
